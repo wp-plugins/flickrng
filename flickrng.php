@@ -3,18 +3,11 @@
 Plugin Name: Flickrng
 Plugin URI: http://www.bundy.ca
 Description: Flickrng
-Version: 0.5
+Version: 0.1
 Author: Mitchell Bundy
 Author URI: http://www.bundy.ca/
 */
 
-// Filename: flickrng.php
-// Last Edited: 09/03/11
-// by: Mitchell Bundy
-
-/*  
-INSERT LICENCE HERE
-*/
 require_once('phpFlickr/phpFlickr.php');
 require_once(ABSPATH.'wp-includes/class-oembed.php');
 require_once(ABSPATH.'wp-admin/includes/image.php');
@@ -23,7 +16,7 @@ if (!class_exists('flickrng')) {
 	class flickrng extends phpFlickr {
 		
 		var $options = array(
-			'api' => 'a9cb3fe293d98a903d83c5ffee22fb21',
+			'api' => NULL,
 			'sizes' => array(
 				'thumbnail' => array(
 					'map_to' => false,
