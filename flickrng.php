@@ -67,11 +67,17 @@ if (!class_exists('flickrng')) {
 			// Admin Menu
 			add_action('admin_menu', array($this, 'admin_menu'));
 			
+			// Filter wp_get_attachment_link
+			add_filter('wp_get_attachment_link', array($this, 'wp_get_attachment_link'), 10, 2);
+			
+			
 			// TODO: Disallow edit image.
 			// TODO: Flickr icon/identifier in media manager.
 			// TODO: Auto-sync flickr sets
 			// TODO: Disallow field edits when syncing with Flickr
 			// TODO: Make admin page pretty.
+			// TODO: "Don't link to post"
+			// TODO: hook into "insert into post"
 		}
 		
 		function wp_init() {
@@ -161,6 +167,20 @@ if (!class_exists('flickrng')) {
 			add_options_page(__('Flickrng', 'flickrng'), __('Flickrng', 'flickrng'), 'manage_options', 'flickrng', array($this, 'admin'));
 		}
 		
+		
+		function wp_get_attachment_link($html, $id) {
+			$meta = wp_get_attachment_metadata($id);
+			if ($meta['flickrng']) { 
+				$set_id = get_post_meta($id, 'flickrng_set_id', true);
+				$url = $meta['flickrng']['data']['urls']['url'][0]['_content'];
+				if ($set_id) $url .= 'in/set-'.$set_id.'/';
+				if ($meta['sizes']['large']['flickrng'])
+					$html = preg_replace('#href=\'(.*)\'#i', "href='".$meta['sizes']['large']['source']."'", $html);
+				$html .= "<input type='hidden' name='flickr_url' value='$url' /></a>";
+			}
+			return $html;
+		}
+		
 		function attachment_fields_to_edit($form_fields, $post) {
 			$meta = wp_get_attachment_metadata($post->ID);
 			if ($meta['flickrng']) {
@@ -199,6 +219,7 @@ if (!class_exists('flickrng')) {
 		
 		function image_downsize($return, $id, $size) {
 			$meta = wp_get_attachment_metadata($id);
+			if (is_array($size)) return $return;
 			if ($meta && $meta['sizes'][$size]['flickrng']) {
 				return array( $meta['sizes'][$size]['source'], $meta['sizes'][$size]['width'], $meta['sizes'][$size]['height'], true );
 			}
